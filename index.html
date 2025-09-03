@@ -1,0 +1,165 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <title>इंग्रजी शैक्षणिक गेम</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #f0f9ff; }
+    h1 { color: #2c3e50; }
+    .emoji { font-size: 80px; cursor: pointer; margin: 20px; }
+    .options { display: flex; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+    .option-btn {
+      font-size: 80px; margin: 15px; padding: 15px; cursor: pointer;
+      border: 3px solid #2c3e50; border-radius: 20px; background: #fff;
+    }
+    .message { font-size: 28px; font-weight: bold; margin: 20px; color: green; }
+    button { padding: 12px 25px; font-size: 20px; margin: 10px; border-radius: 10px; }
+  </style>
+</head>
+<body>
+  <h1>वर्ग १ - इंग्रजी गेम 🎮</h1>
+  <p id="instructions">क्रियापद ऐका आणि योग्य इमोजी निवडा</p>
+  <div id="game"></div>
+  <div class="options" id="options"></div>
+  <div class="message" id="message"></div>
+  <button onclick="startVerbGame()">क्रियापद गेम</button>
+  <button onclick="startAlphabetMatch()">अक्षर जुळवा</button>
+  <button onclick="startAlphabetEmoji()">अक्षर + इमोजी</button>
+  <button onclick="startAlphabetSound()">अक्षर साऊंड क्विझ</button>
+
+  <script>
+    // ✅ Text-to-Speech (Indian English)
+    function speak(text) {
+      let msg = new SpeechSynthesisUtterance(text);
+      msg.lang = "en-IN"; 
+      msg.rate = 0.9;
+      speechSynthesis.speak(msg);
+    }
+
+    const verbs = [
+      {word:"eat",emoji:"🍽️"}, {word:"drink",emoji:"🥤"}, {word:"run",emoji:"🏃"}, {word:"walk",emoji:"🚶"},
+      {word:"jump",emoji:"🤸"}, {word:"sit",emoji:"🪑"}, {word:"stand",emoji:"🧍"}, {word:"sleep",emoji:"😴"},
+      {word:"read",emoji:"📖"}, {word:"write",emoji:"✍️"}, {word:"sing",emoji:"🎤"}, {word:"dance",emoji:"💃"},
+      {word:"clap",emoji:"👏"}, {word:"laugh",emoji:"😂"}, {word:"cry",emoji:"😢"}, {word:"swim",emoji:"🏊"},
+      {word:"cook",emoji:"👩‍🍳"}, {word:"drive",emoji:"🚗"}, {word:"play",emoji:"⚽"}, {word:"listen",emoji:"🎧"},
+      {word:"talk",emoji:"🗣️"}, {word:"watch",emoji:"📺"}, {word:"open",emoji:"📬"}, {word:"close",emoji:"🚪"},
+      {word:"smile",emoji:"😊"}, {word:"wash",emoji:"🧼"}, {word:"clean",emoji:"🧹"}, {word:"draw",emoji:"🎨"},
+      {word:"paint",emoji:"🖌️"}, {word:"think",emoji:"🤔"}, {word:"help",emoji:"🤝"}, {word:"carry",emoji:"👜"},
+      {word:"throw",emoji:"🥎"}, {word:"catch",emoji:"🤾"}, {word:"kick",emoji:"🥅"}, {word:"study",emoji:"📚"},
+      {word:"teach",emoji:"👩‍🏫"}, {word:"buy",emoji:"🛒"}, {word:"sell",emoji:"💰"}, {word:"count",emoji:"🔢"},
+      {word:"pray",emoji:"🙏"}, {word:"hug",emoji:"🤗"}, {word:"kiss",emoji:"💋"}, {word:"climb",emoji:"🧗"},
+      {word:"dig",emoji:"⛏️"}, {word:"plant",emoji:"🌱"}, {word:"ride",emoji:"🚴"}, {word:"jump rope",emoji:"🪢"}
+    ];
+
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    const emojiMap = {
+      A:"🍎", B:"🐝", C:"🐱", D:"🐶", E:"🥚", F:"🐟", G:"🥝", H:"🏠", I:"🍦", J:"🤹",
+      K:"🔑", L:"🦁", M:"🍈", N:"🐦", O:"🍊", P:"🍍", Q:"❓", R:"🤖", S:"🐍", T:"🌴",
+      U:"☂️", V:"🎻", W:"🍉", X:"❌", Y:"🪀", Z:"🦓"
+    };
+
+    let currentGame = "";
+
+    function setMessage(text, color="green") {
+      document.getElementById("message").innerText = text;
+      document.getElementById("message").style.color = color;
+    }
+
+    // 🎮 Verb Game
+    function startVerbGame() {
+      currentGame = "verb";
+      setMessage(""); document.getElementById("instructions").innerText = "क्रियापद ऐका आणि योग्य इमोजी निवडा";
+      nextVerb();
+    }
+    function nextVerb() {
+      const gameDiv = document.getElementById("game");
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = ""; gameDiv.innerHTML = "";
+      let correct = verbs[Math.floor(Math.random()*verbs.length)];
+      speak(correct.word);
+      gameDiv.innerHTML = `<h2>${correct.word}</h2>`;
+      let choices = [correct,...verbs.sort(()=>0.5-Math.random()).slice(0,3)];
+      choices.sort(()=>0.5-Math.random());
+      choices.forEach(c=>{
+        let btn = document.createElement("div");
+        btn.className="option-btn"; btn.innerText=c.emoji;
+        btn.onclick = ()=>{
+          if(c.word===correct.word){
+            setMessage("✅ खूप छान! Well done!");
+            speak("Well done");
+            setTimeout(nextVerb,1500);
+          } else {
+            setMessage("❌ चूक झाली! पुन्हा प्रयत्न करा","red");
+            speak("Wrong, try again");
+          }
+        };
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    // 🎮 Alphabet Match
+    function startAlphabetMatch() {
+      currentGame = "alphaMatch";
+      setMessage(""); document.getElementById("instructions").innerText="Capital अक्षरासाठी योग्य small अक्षर निवडा";
+      let letter = alphabet[Math.floor(Math.random()*alphabet.length)];
+      document.getElementById("game").innerHTML=`<h2>${letter}</h2>`;
+      let correct = letter.toLowerCase();
+      let options = [correct, ...alphabet.sort(()=>0.5-Math.random()).slice(0,3).map(l=>l.toLowerCase())];
+      options.sort(()=>0.5-Math.random());
+      const optionsDiv=document.getElementById("options"); optionsDiv.innerHTML="";
+      options.forEach(c=>{
+        let btn=document.createElement("div");
+        btn.className="option-btn"; btn.innerText=c;
+        btn.onclick=()=>{
+          if(c===correct){ setMessage("✅ बरोबर!"); speak("Correct"); setTimeout(startAlphabetMatch,1500);}
+          else { setMessage("❌ चूक! पुन्हा प्रयत्न करा","red"); speak("Try again");}
+        };
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    // 🎮 Alphabet + Emoji
+    function startAlphabetEmoji() {
+      currentGame="alphaEmoji";
+      setMessage(""); document.getElementById("instructions").innerText="अक्षरासाठी योग्य इमोजी निवडा";
+      let letter=alphabet[Math.floor(Math.random()*alphabet.length)];
+      document.getElementById("game").innerHTML=`<h2>${letter}</h2>`;
+      let correct=emojiMap[letter];
+      let allEmojis=Object.values(emojiMap);
+      let options=[correct,...allEmojis.sort(()=>0.5-Math.random()).slice(0,3)];
+      options.sort(()=>0.5-Math.random());
+      const optionsDiv=document.getElementById("options"); optionsDiv.innerHTML="";
+      options.forEach(c=>{
+        let btn=document.createElement("div");
+        btn.className="option-btn"; btn.innerText=c;
+        btn.onclick=()=>{
+          if(c===correct){ setMessage("✅ छान!"); speak("Correct"); setTimeout(startAlphabetEmoji,1500);}
+          else { setMessage("❌ चूक! पुन्हा प्रयत्न करा","red"); speak("Try again");}
+        };
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    // 🎮 Alphabet Sound Quiz
+    function startAlphabetSound() {
+      currentGame="alphaSound";
+      setMessage(""); document.getElementById("instructions").innerText="आवाज ऐका आणि योग्य अक्षर निवडा";
+      let letter=alphabet[Math.floor(Math.random()*alphabet.length)];
+      speak(letter);
+      document.getElementById("game").innerHTML=`<h2>🔊 Listen...</h2>`;
+      let options=[letter,...alphabet.sort(()=>0.5-Math.random()).slice(0,3)];
+      options.sort(()=>0.5-Math.random());
+      const optionsDiv=document.getElementById("options"); optionsDiv.innerHTML="";
+      options.forEach(c=>{
+        let btn=document.createElement("div");
+        btn.className="option-btn"; btn.innerText=c;
+        btn.onclick=()=>{
+          if(c===letter){ setMessage("✅ बरोबर!"); speak("Correct"); setTimeout(startAlphabetSound,1500);}
+          else { setMessage("❌ चुकीचं! पुन्हा प्रयत्न करा","red"); speak("Try again");}
+        };
+        optionsDiv.appendChild(btn);
+      });
+    }
+  </script>
+</body>
+</html>
